@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import TodosList from "./TodosList"
 import SelectTodos from "./SelectTodos"
 import AddTodoForm from "./AddTodoForm"
@@ -33,12 +33,10 @@ const initialTodos = [
 ]
 
 const Todos = () => {
-  const [todos, setTodos] = useState(initialTodos)
+  const [darkModes, setDarkModes] = useState(() => JSON.parse(localStorage.getItem("darkmode")) || false)
+  const [todos, setTodos] = useState(()=>JSON.parse(localStorage.getItem("myTodoList")) || initialTodos)
   const [filter, setFilter] = useState("all")
   
-  React.useEffect(()=>{
-    document.title = todos ? `Vous avez ${todos.filter((el) => !el.isCompleted).length} tâches à accomplir!` : `Que devez vous faire aujourd'hui ?`
-  },[todos])
   
   const addTodo = (text) => {
     const newTodo = {
@@ -78,8 +76,32 @@ const Todos = () => {
     })
     
     const completedCount = todos.filter((el) => el.isCompleted).length
+    useEffect(()=>{  
+        document.title = todos ? `Vous avez ${todos.length - completedCount} tâches à accomplir!` : `Que devez vous faire aujourd'hui ?`
+    },[todos,completedCount])
+    
+useEffect(()=>{
+//todo toucher le css
+  darkModes ? document.body.className = 'bg-dark text-white' : document.body.className = 'bg-white text-dark'
+},[darkModes])
+
+const handleChange = () =>{
+  setDarkModes(!darkModes)
+  console.log(darkModes)
+}
+  useEffect(() => {
+    localStorage.setItem("darkmode", JSON.stringify(darkModes))
+  }, [darkModes])
+    useEffect(()=>{
+      localStorage.setItem("myTodoList", JSON.stringify(todos))
+    },[todos])
     return (
+
       <main>
+        <div className="form-check form-switch">
+          {darkModes ? <input className="form-check-input" type="checkbox" id="activate" onChange={handleChange} checked /> : <input className="form-check-input" type="checkbox" id="activate" onChange={handleChange} />}
+          <label className="form-check-label" htmlFor="activate"> Mode Sombre </label>
+        </div>
       <h2 className="text-center">
         Ma liste de tâches ({completedCount} / {todos.length})
       </h2>
