@@ -1,4 +1,4 @@
-import { useState } from "react"
+import React, { useState } from "react"
 import TodosList from "./TodosList"
 import SelectTodos from "./SelectTodos"
 import AddTodoForm from "./AddTodoForm"
@@ -35,20 +35,24 @@ const initialTodos = [
 const Todos = () => {
   const [todos, setTodos] = useState(initialTodos)
   const [filter, setFilter] = useState("all")
-
+  
+  React.useEffect(()=>{
+    document.title = todos ? `Vous avez ${todos.filter((el) => !el.isCompleted).length} tâches à accomplir!` : `Que devez vous faire aujourd'hui ?`
+  },[todos])
+  
   const addTodo = (text) => {
     const newTodo = {
       text,
       isCompleted: false,
       id: uuidv4()
-    }
+    } 
     setTodos([...todos, newTodo])
   }
-
+  
   const deleteTodo = (task) => {
     setTodos(todos.filter((el) => el.id !== task.id))
   }
-
+  
   const toggleCompleteTodo = (task) => {
     setTodos(
       todos.map((el) => {
@@ -60,22 +64,22 @@ const Todos = () => {
         }
         return el
       })
-    )
-  }
-
-  const filteredTodos = todos.filter((el) => {
-    if (filter === "completed") {
-      return el.isCompleted
+      )
     }
-    if (filter === "notcompleted") {
-      return !el.isCompleted
-    }
-    return true
-  })
-
-  const completedCount = todos.filter((el) => el.isCompleted).length
-  return (
-    <main>
+    
+    const filteredTodos = todos.filter((el) => {
+      if (filter === "completed") {
+        return el.isCompleted
+      }
+      if (filter === "notcompleted") {
+        return !el.isCompleted
+      }
+      return true
+    })
+    
+    const completedCount = todos.filter((el) => el.isCompleted).length
+    return (
+      <main>
       <h2 className="text-center">
         Ma liste de tâches ({completedCount} / {todos.length})
       </h2>
@@ -84,7 +88,7 @@ const Todos = () => {
         todos={filteredTodos}
         deleteTodo={deleteTodo}
         toggleCompleteTodo={toggleCompleteTodo}
-      />
+        />
       <AddTodoForm addTodo={addTodo} setFilter={setFilter} />
     </main>
   )
